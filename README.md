@@ -53,3 +53,11 @@ Config
 
 ##Andre Programmer:
 Filutforsker - pcmanfm
+
+##Vim
+Neovim
+Klient ngvim
+```
+cd ~/.config && ln -s ~/git/linuxconfig/nvim nvim
+cd ~/ && ln -s ~/git/linuxconfig/vimrc .vimrc
+```
