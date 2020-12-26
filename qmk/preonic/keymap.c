@@ -1,9 +1,10 @@
 #include QMK_KEYBOARD_H
 enum custom_keycodes {
-    M_BSDEL = SAFE_RANGE,
+    M_AE = SAFE_RANGE,
+    M_OE = SAFE_RANGE+1,
+    M_AA = SAFE_RANGE+2
 };
 
-static bool bsdel_mods = false;
 
 /* THIS FILE WAS GENERATED!
  *
@@ -11,29 +12,31 @@ static bool bsdel_mods = false;
  * edit it directly.
  */
 
+
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 	[0] = LAYOUT_ortho_5x12(
-    KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, TG(6), 
-    TT(4), KC_Q, KC_W, KC_E, KC_R, KC_T, KC_Y, KC_U, KC_I, KC_O, KC_P, KC_MINS, 
+    KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, 
+    KC_NO, KC_Q, KC_W, KC_E, KC_R, KC_T, KC_Y, KC_U, KC_I, KC_O, KC_P, KC_MINS, 
     TT(2), LGUI_T(KC_A), LALT_T(KC_S), LCTL_T(KC_D), LSFT_T(KC_F), KC_G, KC_H, RSFT_T(KC_J), RCTL_T(KC_K), RALT_T(KC_L), RGUI_T(KC_SCLN), KC_QUOT, 
-    KC_LSFT, KC_Z, KC_X, KC_C, KC_V, KC_B, KC_N, KC_M, KC_COMM, KC_DOT, KC_SLSH, KC_RSFT, 
-    KC_NO, KC_NO, KC_NO, KC_NO, MO(1), KC_BSPC, KC_ENT, KC_SPC, KC_NO, KC_NO, KC_NO, KC_APP),
+    TT(4), KC_Z, KC_X, KC_C, KC_V, KC_B, KC_N, KC_M, KC_COMM, KC_DOT, KC_SLSH, KC_NO, 
+    KC_NO, KC_NO, KC_NO, KC_ESC, MO(1), KC_BSPC, KC_ENT, KC_SPC, KC_TAB, KC_NO, KC_NO, KC_APP),
 	[1] = LAYOUT_ortho_5x12(
     KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, 
     KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_PLUS, KC_UNDO, KC_AGIN, KC_LCBR, KC_RCBR, KC_FIND, 
-    KC_TRNS, KC_LGUI, KC_LALT, KC_LCTL, KC_LSFT, KC_TRNS, KC_TAB, KC_HANJ, KC_HANJ, KC_HANJ, KC_ESC, KC_GRV, 
-    KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_EQL, KC_LPRN, KC_RPRN, KC_LBRC, KC_RBRC, KC_TRNS, 
+    KC_TRNS, KC_LGUI, KC_LALT, KC_LCTL, KC_LSFT, KC_TRNS, KC_NO, M_AE, M_OE, M_AA, KC_NO, KC_GRV, 
+    KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_AT, KC_TRNS, KC_EQL, KC_LPRN, KC_RPRN, KC_LBRC, KC_RBRC, KC_TRNS, 
     KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_DEL, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS),
   [2] = LAYOUT_ortho_5x12(
     KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, 
     KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_NO, KC_NO, KC_NO, KC_NO, KC_TRNS, KC_TRNS, 
-    KC_NO, KC_LGUI, KC_LALT, KC_LCTL, KC_LSFT, KC_INS, KC_LEFT, KC_UP, KC_DOWN, KC_RGHT, KC_TRNS, KC_TRNS, 
-    KC_TRNS, KC_TRNS, KC_ACL0, KC_ACL1, KC_ACL2, KC_TRNS, KC_BTN2, KC_BTN1, KC_COPY, KC_PSTE, KC_CUT, KC_TRNS, 
-    KC_TRNS, KC_TRNS, KC_TRNS, TT(0), MO(3), KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS),
+    KC_NO, KC_LGUI, KC_LALT, KC_LCTL, KC_LSFT, KC_INS, KC_LEFT, KC_DOWN, KC_UP, KC_RGHT, KC_TRNS, KC_TRNS, 
+    KC_TRNS, KC_TRNS, KC_ACL0, KC_ACL1, KC_ACL2, KC_TRNS, KC_BTN2, KC_BTN1, KC_COPY, KC_PSTE, KC_CUT, TT(0), 
+    KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, MO(3), KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS),
   [3] = LAYOUT_ortho_5x12(
     KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, 
     KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, 
-    KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_HOME, KC_PGUP, KC_PGDN, KC_END, KC_TRNS, KC_TRNS, 
+    KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_HOME, KC_PGDN, KC_PGUP, KC_END, KC_TRNS, KC_TRNS, 
     KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, 
     KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS),
   [4] = LAYOUT_ortho_5x12(
@@ -56,27 +59,24 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_LCTL, KC_LGUI, KC_LALT, MO(7), KC_SPC, KC_SPC, KC_SPC, KC_QUOT, KC_RALT, KC_RGUI, KC_APP, KC_RCTL)
 };
 
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
-    case M_BSDEL: {
-      uint8_t kc = KC_BSPC;
-
-      if (record->event.pressed) {
-        if (keyboard_report->mods) {
-          kc = KC_DEL;
+    case M_AE:
+        if (record->event.pressed) {
+          SEND_STRING(SS_LALT("'"));
         }
-        register_code (kc);
-        bsdel_mods = keyboard_report->mods;
-      }
-      else {
-        if (bsdel_mods) {
-          kc = KC_DEL;
+        break;
+    case M_OE:
+        if (record->event.pressed) {
+          SEND_STRING(SS_LALT("o"));
         }
-        unregister_code (kc);
-      }
-      break;
+        break;
+    case M_AA:
+        if (record->event.pressed) {
+          SEND_STRING(SS_LALT("a"));
+        }
+        break;
     }
-
-  }
-      return true;
+    return true;
 };
