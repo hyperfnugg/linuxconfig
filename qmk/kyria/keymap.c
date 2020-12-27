@@ -427,16 +427,16 @@ static void move(enum DIRECTION dir) {
 
       switch (dir) {
         case UP:
-          y = mult;
+          y = 0-mult;
           break;
         case DOWN:
-          y = 0 - mult;
+          y = mult;
           break;
         case LEFT:
-          x = mult;
+          x = 0-mult;
           break;
         case RIGHT:
-          x = 0 - mult;
+          x = mult;
           break;
       }
 
@@ -460,16 +460,16 @@ static void move(enum DIRECTION dir) {
 
       switch (dir) {
         case UP:
-          y = mult;
+          y = 0-mult;
           break;
         case DOWN:
-          y = 0 - mult;
+          y =  mult;
           break;
         case LEFT:
-          x = mult;
+          x = 0-mult;
           break;
         case RIGHT:
-          x = 0 - mult;
+          x = mult;
           break;
       }
 
@@ -696,12 +696,15 @@ static void render_status(void) {
     default:
       oled_write_P(PSTR("Undefined     "), false);
   }
+  
+  directive === TEXTMOTION ? oled_write_P(PSTR("ARROWS") false):;
+
 
   // Host Keyboard LED Status
-  uint8_t led_usb_state = host_keyboard_leds();
-  oled_write_P(IS_LED_ON(led_usb_state, USB_LED_NUM_LOCK)    ? PSTR("NUMLCK") : PSTR("      "), false);
-  oled_write_P(IS_LED_ON(led_usb_state, USB_LED_CAPS_LOCK)   ? PSTR("CAPLCK") : PSTR("      "), false);
-  oled_write_P(IS_LED_ON(led_usb_state, USB_LED_SCROLL_LOCK) ? PSTR("SCRLCK") : PSTR("      "), false);
+  //uint8_t led_usb_state = host_keyboard_leds();
+  //oled_write_P(IS_LED_ON(led_usb_state, USB_LED_NUM_LOCK)    ? PSTR("NUMLCK") : PSTR("      "), false);
+  //oled_write_P(IS_LED_ON(led_usb_state, USB_LED_CAPS_LOCK)   ? PSTR("CAPLCK") : PSTR("      "), false);
+  //oled_write_P(IS_LED_ON(led_usb_state, USB_LED_SCROLL_LOCK) ? PSTR("SCRLCK") : PSTR("      "), false);
 }
 
 layer_state_t layer_state_set_user(layer_state_t state) {
