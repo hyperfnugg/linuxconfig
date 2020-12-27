@@ -14,6 +14,8 @@
  */
 #include QMK_KEYBOARD_H
 
+#include "pointing_device.h"
+
 enum layers {
   QWERTY = 0,
   QWERTY_MAC,
@@ -51,9 +53,14 @@ enum custom_keycodes {
   M_ACCL_1,
   M_ACCL_2,
   M_ACCL_3,
+  M_ACCL_4,
   M_DIRECTIVE_TEXTMOTION,
   M_DIRECTIVE_MOUSE,
-  M_DIRECTIVE_SCROLL
+  M_DIRECTIVE_SCROLL,
+  M_UP,
+  M_DOWN,
+  M_LEFT,
+  M_RIGHT 
 };
 
 enum tap_dances {
@@ -63,18 +70,27 @@ enum tap_dances {
 };
 
 
-enum DIRECTIVES{
+enum directive {
   TEXTMOTION,
   MOUSE,
-  SCROLL,
+  SCROLL
+};
+
+enum DIRECTION{
+  UP,
+  DOWN,
+  LEFT,
+  RIGHT
 };
 
 bool accelrated_1 = false;
 bool accelrated_2 = false;
 bool accelrated_3 = false;
+bool accelrated_4 = false;
 
 
 enum os active_os = MAC;
+enum directive active_directive = TEXTMOTION;
 
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -225,7 +241,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
    * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
    * |        |      |      |      |      |      |                              |Left  | Down |  Up  | Right|Mouse |        |
    * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
-   * |        |      |      |      |      |      |      |      |  |      |      |Mouse1|Mouse2| Copy |Paste | Cut  |        |
+   * |        |      |      |      |      |      |      |      |  |      |      |Mouse1|Mouse2|Mouse3|      |TextMv|        |
    * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
    *                        |      |      |      |      |      |  |      |      |      |      |      |
    *                        |      |      |      |      |      |  |      |      |      |      |      |
@@ -233,13 +249,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
    */
   [NAVIGATION] = LAYOUT(
       KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-      KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+      KC_TRNS, KC_TRNS, M_DIRECTIVE_SCROLL, KC_TRNS, KC_TRNS, KC_TRNS,
 
       KC_TRNS, KC_TRNS, KC_TRNS, LT(NAVIGATION_MOD, KC_TAB), KC_TRNS, KC_TRNS,
-      KC_LEFT, KC_DOWN, KC_UP, KC_RGHT, KC_TRNS, KC_TRNS,
+      M_LEFT, M_DOWN, M_UP, M_RIGHT, M_DIRECTIVE_MOUSE, KC_TRNS,
 
-      KC_TRNS, KC_TRNS, KC_ACL0, KC_ACL1, KC_ACL2, KC_TRNS, KC_TRNS, KC_TRNS,
-      KC_TRNS, KC_TRNS, KC_BTN1, KC_BTN2, M_COPY, M_PASTE, M_CUT, KC_TRNS,
+      KC_TRNS, KC_TRNS, M_ACCL_1, M_ACCL_2, M_ACCL_3, M_ACCL_4, KC_TRNS, KC_TRNS,
+      KC_TRNS, KC_TRNS, KC_BTN1, KC_BTN2, KC_BTN3, KC_TRNS, M_DIRECTIVE_TEXTMOTION, KC_TRNS,
 
       KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
       KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
@@ -380,6 +396,138 @@ static void set_os(enum os new_os) {
   else layer_off(QWERTY_MAC);
 }
 
+
+static void set_directive(enum directive new_directive) {
+  active_directive = new_directive;
+}
+
+static void pointer(int x, int y, int v, int h) {
+  report_mouse_t currentReport = pointing_device_get_report();
+  currentReport.x = x;
+  currentReport.y = y;
+  currentReport.v = v;
+  currentReport.h = h;
+  pointing_device_set_report(currentReport);
+  pointing_device_send();
+}
+
+static void move(enum DIRECTION dir) {
+  int mult = 5;
+  int x = 0;
+  int y = 0;
+  switch (active_directive) {
+    case MOUSE:
+
+      if(accelrated_4)
+        mult = 1;
+      else if (accelrated_3 || accelrated_2) 
+        mult = 125;
+      else if (accelrated_1)
+        mult = 25;  
+
+      switch (dir) {
+        case UP:
+          y = mult;
+          break;
+        case DOWN:
+          y = 0 - mult;
+          break;
+        case LEFT:
+          x = mult;
+          break;
+        case RIGHT:
+          x = 0 - mult;
+          break;
+      }
+
+      pointer(x, y, 0, 0);
+      if(accelrated_3) {
+        pointer(x, y, 0, 0);
+        pointer(x, y, 0, 0);
+        pointer(x, y, 0, 0);
+        pointer(x, y, 0, 0);
+      }
+      break;
+
+    case SCROLL:
+
+      if(accelrated_4)
+        mult = 1;
+      else if (accelrated_3 || accelrated_2) 
+        mult = 125;
+      else if (accelrated_1)
+        mult = 25;  
+
+      switch (dir) {
+        case UP:
+          y = mult;
+          break;
+        case DOWN:
+          y = 0 - mult;
+          break;
+        case LEFT:
+          x = mult;
+          break;
+        case RIGHT:
+          x = 0 - mult;
+          break;
+      }
+
+      pointer(0, 0, x, y);
+      if(accelrated_3) {
+        pointer(0, 0, x, y);
+        pointer(0, 0, x, y);
+        pointer(0, 0, x, y);
+        pointer(0, 0, x, y);
+      }
+      break;
+
+    case TEXTMOTION:
+      switch (dir) {
+        case UP:
+          register_code(KC_UP);
+          break;
+        case DOWN:
+          register_code(KC_DOWN);
+          break;
+        case LEFT:
+          register_code(KC_LEFT);
+          break;
+        case RIGHT:
+          register_code(KC_RIGHT);
+          break;
+      }
+      break;
+
+  }
+}
+
+static void release_move(enum DIRECTION dir) {
+  switch (active_directive) {
+    case TEXTMOTION:
+      switch (dir) {
+        case UP:
+          unregister_code(KC_UP);
+          break;
+        case DOWN:
+          unregister_code(KC_DOWN);
+          break;
+        case LEFT:
+          unregister_code(KC_LEFT);
+          break;
+        case RIGHT:
+          unregister_code(KC_RIGHT);
+          break;
+      }
+      break;
+    case SCROLL:
+    case MOUSE:
+      break;
+  }
+}
+
+
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   if (record->event.pressed) {
     switch (keycode) {
@@ -394,6 +542,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         break;
       case M_ACCL_1:
         accelrated_1 = true; 
+        break;
+      case   M_ACCL_2:
+        accelrated_2 = true; 
+        break;
+      case   M_ACCL_3:
+        accelrated_3 = true; 
+        break;
+      case   M_ACCL_4:
+        accelrated_4 = true; 
         break;
 
       case M_CUT:
@@ -433,11 +590,54 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       case M_OS_MAC:
         set_os(MAC);
         break;
+
+      case   M_DIRECTIVE_TEXTMOTION:
+        set_directive(TEXTMOTION);
+          break;
+      case   M_DIRECTIVE_MOUSE:
+        set_directive(MOUSE);
+          break;
+      case   M_DIRECTIVE_SCROLL:
+        set_directive(SCROLL);
+          break;
+      case   M_UP:
+        move(UP);
+        break;
+      case   M_DOWN:
+        move(DOWN);
+        break;
+      case   M_LEFT:
+        move(LEFT);
+        break;
+      case   M_RIGHT:
+        move(RIGHT);
+        break;
     }
   } else {
     switch (keycode) {
       case M_ACCL_1:
         accelrated_1 = false; 
+        break;
+      case M_ACCL_2:
+        accelrated_2 = false; 
+        break;
+      case M_ACCL_3:
+        accelrated_3 = false; 
+        break;
+      case M_ACCL_4:
+        accelrated_4 = false; 
+        break;
+      case   M_UP:
+        release_move(UP);
+        break;
+      case   M_DOWN:
+        release_move(DOWN);
+        break;
+      case   M_LEFT:
+        release_move(LEFT);
+        break;
+      case   M_RIGHT:
+        release_move(RIGHT);
         break;
     }
   }
