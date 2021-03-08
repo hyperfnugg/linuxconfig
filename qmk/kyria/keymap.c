@@ -15,13 +15,16 @@
 #include QMK_KEYBOARD_H
 
 #include "pointing_device.h"
+#include "report.h"
+#include <stdio.h>
 
 enum layers {
   QWERTY = 0,
   QWERTY_MAC,
   CMD,
   CMD_MAC,
-  QWERTY_MOD,
+  QWERTY_MOD_L,
+  QWERTY_MOD_R,
   NAVIGATION,
   NAVIGATION_MOD,
   NUMBERS,
@@ -38,11 +41,6 @@ enum custom_keycodes {
   M_AE = SAFE_RANGE,
   M_OE,
   M_AA,
-  M_CUT,
-  M_COPY,
-  M_PASTE,
-  M_UNDO,
-  M_REDO,
   M_FIND,
   M_FIND_CURSOR,
   M_FIND_NEXT,
@@ -60,7 +58,16 @@ enum custom_keycodes {
   M_UP,
   M_DOWN,
   M_LEFT,
-  M_RIGHT 
+  M_RIGHT,
+  M_MOUSE1,
+  M_TOGGLE_MOUSE1,
+  M_MOUSE2,
+  M_TOGGLE_MOUSE2,
+  M_MOUSE3,
+  M_TOGGLE_MOUSE3,
+  M_PARENTHESIS,
+  M_CURLIES,
+  M_BRACKETS
 };
 
 enum tap_dances {
@@ -92,33 +99,35 @@ bool accelrated_4 = false;
 enum os active_os = MAC;
 enum directive active_directive = TEXTMOTION;
 
+static uint16_t directive_timer;
+
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   /* 
    * Base Layer: QWERTY
    *
    * ,-------------------------------------------.                              ,-------------------------------------------.
-   * |   = +  |   Q  |   W  |   E  |   R  |   T  |                              |   Y  |   U  |   I  |   O  |   P  |Backspac|
+   * |        |      |   W  |   E  |   R  |   T  |                              |   Y  |   U  |   I  |   O  |      |        |
    * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
-   * |   tab  |   A  |   S  |  D   |   F  |   G  |                              |   H  |   J  |   K  |   L  | ;  : |  ' "   |
+   * |  Q     |   A  |   S  |  D   |   F  |   G  |                              |   H  |   J  |   K  |   L  | ;  : |   P    |
    * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
-   * |   Esc  |MOD/Z |   X  |   C  |   V  |   B  | \ |  |Insert|  |   (  |  )   |   N  |   M  | ,  < | . >  |MOD /?|  - _   |
+   * |        |MOD/Z |   X  |   C  |   V  |   B  |      |      |  |      |      |   N  |   M  | ,  < | . >  |MOD /?|        |
    * `----------------------+------+------+------+------+------+  |------+------+------+------+------+----------------------'
    *                        |Accel |      |LAYR  |LAYR  |LAYR  |  |Enter |Space |Space |      |      |
    *                        |      |      |  2   |  2   |  4   |  |      |      |      |      |      |
    *                        `----------------------------------'  `----------------------------------'
    */
   [QWERTY] = LAYOUT(
-      KC_EQL, KC_Q, KC_W, KC_E, KC_R, KC_T,
-      KC_Y, KC_U, KC_I, KC_O, KC_P, KC_BSPC,
+      KC_NO, KC_NO, KC_W, KC_E, KC_R, KC_T,
+      KC_Y, KC_U, KC_I, KC_O, KC_NO, KC_NO,
 
-      KC_TAB, LALT_T(KC_A), LCTL_T(KC_S), LT(QWERTY_MOD, KC_D), LSFT_T(KC_F), KC_G,
-      KC_H, RSFT_T(KC_J), LT(QWERTY_MOD, KC_K), RCTL_T(KC_L), RALT_T(KC_SCLN), KC_QUOT,
+      KC_Q, LALT_T(KC_A), LCTL_T(KC_S), LT(QWERTY_MOD_R, KC_D), LSFT_T(KC_F), KC_G,
+      KC_H, RSFT_T(KC_J), LT(QWERTY_MOD_L, KC_K), LCTL_T(KC_L), RALT_T(KC_SCLN), KC_P,
 
-      KC_ESC, LGUI_T(KC_Z), KC_X, KC_C, KC_V, KC_B, KC_BSLS, KC_INS,
-      KC_LPRN, KC_RPRN, KC_N, KC_M, KC_COMM, KC_DOT, RGUI_T(KC_SLSH), KC_MINS,
+      KC_NO, LGUI_T(KC_Z), KC_X, KC_C, KC_V, KC_B, KC_BSLS, KC_INS,
+      KC_LPRN, KC_RPRN, KC_N, KC_M, KC_COMM, KC_DOT, LGUI_T(KC_SLSH), KC_NO,
 
-      M_ACCL_1, KC_NO, TT(NAVIGATION), TT(NAVIGATION), TT(NUMBERS), 
+      M_ACCL_1, KC_NO, LT(NAVIGATION, KC_BSPC), LT(NAVIGATION,KC_BSPC), LT(NUMBERS,KC_TAB), 
       KC_ENT, KC_SPC, KC_SPC, KC_NO, M_ACCL_1
       ),
 
@@ -141,10 +150,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
 
       KC_TRNS, KC_TRNS, LGUI_T(KC_S), KC_TRNS, KC_TRNS, KC_TRNS,
-      KC_TRNS, KC_TRNS, KC_TRNS, RGUI_T(KC_L), KC_TRNS, KC_TRNS,
+      KC_TRNS, KC_TRNS, KC_TRNS, LGUI_T(KC_L), KC_TRNS, KC_TRNS,
 
       KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-      KC_TRNS, LCTL_T(KC_Z), KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, RCTL_T(KC_SLSH), KC_TRNS,
+      KC_TRNS, LCTL_T(KC_Z), KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, LCTL_T(KC_SLSH), KC_TRNS,
 
       KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
       KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
@@ -154,11 +163,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
    * Command mods
    *
    * ,-------------------------------------------.                              ,-------------------------------------------.
-   * |        |      |      |      |      |      |                              |      |      |      |      |      |        |
+   * |        |      |      |      |      |      |                              | Esc  |      |      |      |      |        |
    * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
    * |        | Alt  | Ctrl | MOD  |Shift |      |                              |      |Shift | MOD  | Ctrl | Alt  |        |
    * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
-   * |        | Win  |      |      |      |      |      |      |  |      |      |      |      |      |      | Win  |        |
+   * |        | Win  |      |      |      |      |      |      |  |      |      | Tab  |      |      |      | Win  |        |
    * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
    *                        |      |      |      |      |      |  |      |      |      |      |      |
    *                        |      |      |      |      |      |  |      |      |      |      |      |
@@ -169,10 +178,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
 
       KC_TRNS, KC_LALT, KC_LCTL, KC_TRNS, KC_LSHIFT, KC_TRNS,
-      KC_TRNS, KC_RSHIFT, KC_TRNS, KC_RCTL, KC_RALT, KC_TRNS,
+      KC_ESC, KC_RSHIFT, KC_TRNS, KC_RCTL, KC_RALT, KC_BSPC,
 
       KC_TRNS, KC_LGUI, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-      KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_RGUI, KC_TRNS,
+      KC_TRNS, KC_TRNS, KC_TAB, KC_TRNS, KC_TRNS, KC_TRNS, KC_RGUI, KC_TRNS,
 
       KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
       KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
@@ -208,36 +217,64 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
    * Mod layer for QWERTY, common symbols
    *
    * ,-------------------------------------------.                              ,-------------------------------------------.
-   * |        |      |Find  |FndNex|      |  ~   |                              |  @   |  (   |  )   |   [  |  ]   | Delete |
+   * |        |      |  @   |  #   |  $   |  %   |                              | Esc  |  &   |  *   |   ^  |      |        |
    * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
-   * |        |      |      |      |      |  `   |                              | Undo |   Æ  |   Ø  |   Å  |  \   |        |
+   * |   !    |  '   |  "   |  _   |  ()  |  {}  |                              |   =  |   Æ  |   Ø  |   Å  | Del  |BkSpace |
    * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
-   * |        |      |      |      |      |      |      |      |  |      |      | Redo |  {   |  }   |      |  |   |        |
+   * |        |  ~   |   `  |  -   |  _   |  +   |      |      |  |      |      | Tab  |  |   |  \   |      |      |        |
    * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
    *                        |      |      |      |      |      |  |      |      |      |      |      |
    *                        |      |      |      |      |      |  |      |      |      |      |      |
    *                        `----------------------------------'  `----------------------------------'
    */
-  [QWERTY_MOD] = LAYOUT(
-      KC_TRNS, M_FIND_CURSOR, M_FIND, M_FIND_NEXT, KC_TRNS, KC_TILD,
-      KC_AT, KC_LPRN, KC_RPRN, KC_LBRC, KC_RBRC, KC_DEL,
+  [QWERTY_MOD_L] = LAYOUT(
+      KC_TRNS, KC_TRNS, KC_AT, KC_HASH, KC_DLR, KC_PERC,
+      KC_ESC, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
 
-      KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_GRV,
-      M_UNDO, M_AE, M_OE, M_AA, KC_BSLS, KC_TRNS,
+      KC_EXLM, KC_QUOT, KC_DQUO, KC_UNDS, M_PARENTHESIS, M_CURLIES,
+      KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_BSPC,
 
-      KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-      KC_TRNS, KC_TRNS, M_REDO, KC_LCBR, KC_RCBR, KC_TRNS, KC_PIPE, KC_TRNS,
+      KC_TRNS, KC_TILD, KC_GRV, KC_MINS, M_BRACKETS, KC_KP_PLUS, KC_TRNS, KC_TRNS,
+      KC_TRNS, KC_TRNS, KC_TAB, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
 
       KC_TRNS, KC_TRNS, MO(NAVIGATION_MOD), MO(NAVIGATION_MOD), MO(NUMBERS_MOD),
       KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
       ),
 
+  /*
+   * Mod layer for QWERTY, common symbols
+   *
+   * ,-------------------------------------------.                              ,-------------------------------------------.
+   * |        |      |  @   |  #   |  $   |  %   |                              | Esc  |  &   |  *   |   ^  |      |        |
+   * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
+   * |   !    |  '   |  "   |  _   |  ()  |  {}  |                              |   =  |   Æ  |   Ø  |   Å  | Del  |BkSpace |
+   * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
+   * |        |  ~   |   `  |  -   |  _   |  +   |      |      |  |      |      | Tab  |  |   |  \   |      |      |        |
+   * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
+   *                        |      |      |      |      |      |  |      |      |      |      |      |
+   *                        |      |      |      |      |      |  |      |      |      |      |      |
+   *                        `----------------------------------'  `----------------------------------'
+   */
+  [QWERTY_MOD_R] = LAYOUT(
+      KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+      KC_ESC, KC_AMPR, KC_ASTR, KC_CIRC, KC_TRNS, KC_TRNS,
+
+      KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+      KC_EQL, M_AE, M_OE, M_AA, KC_DEL, KC_BSPC,
+
+      KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+      KC_TRNS, KC_TRNS, KC_TAB, KC_PIPE, KC_BSLS, KC_TRNS, KC_TRNS, KC_TRNS,
+
+      KC_TRNS, KC_TRNS, MO(NAVIGATION_MOD), MO(NAVIGATION_MOD), MO(NUMBERS_MOD),
+      KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
+      ),
+ 
 
   /*
    * Navigation Layer
    *
    * ,-------------------------------------------.                              ,-------------------------------------------.
-   * |        |      |      |      |      |      |                              |Arrow |Alt-tb|Scroll|Histry|fw/bw |        |
+   * |        |      |FindCr|Find  |FndNex|      |                              |Arrow |Alt-tb|Scroll|Histry|fw/bw |        |
    * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
    * |        |      |      |      |      |      |                              |Left  | Down |  Up  | Right|Mouse |        |
    * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
@@ -248,14 +285,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
    *                        `----------------------------------'  `----------------------------------'
    */
   [NAVIGATION] = LAYOUT(
-      KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+      KC_TRNS, KC_TRNS, M_FIND_CURSOR, M_FIND, M_FIND_NEXT, KC_TRNS,
       KC_TRNS, KC_TRNS, M_DIRECTIVE_SCROLL, KC_TRNS, KC_TRNS, KC_TRNS,
 
       KC_TRNS, KC_TRNS, KC_TRNS, LT(NAVIGATION_MOD, KC_TAB), KC_TRNS, KC_TRNS,
       M_LEFT, M_DOWN, M_UP, M_RIGHT, M_DIRECTIVE_MOUSE, KC_TRNS,
 
       KC_TRNS, KC_TRNS, M_ACCL_1, M_ACCL_2, M_ACCL_3, M_ACCL_4, KC_TRNS, KC_TRNS,
-      KC_TRNS, KC_TRNS, KC_BTN1, KC_BTN2, KC_BTN3, KC_TRNS, M_DIRECTIVE_TEXTMOTION, KC_TRNS,
+      KC_TRNS, KC_TRNS, KC_TRNS, M_MOUSE1, M_MOUSE2, M_MOUSE3, M_DIRECTIVE_TEXTMOTION, KC_TRNS,
 
       KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
       KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
@@ -264,11 +301,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
    * Mod navigation
    *
    * ,-------------------------------------------.                              ,-------------------------------------------.
-   * |        |Pause |PrScr |ScrLck|NumLck|CpsLck|                              |      |      |      |      |      |        |
+   * |        |Pause |PrScr |ScrLck|NumLck|CpsLck|                              | Esc  |      |      |      |      |        |
    * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
-   * |        |      |      |      |      |      |                              | Home |Pg.Dwn|Pg.Up | End  |      |        |
+   * |        |      |      |      |      |      |                              | Home |Pg.Dwn|Pg.Up | End  |      |Backspce|
    * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
-   * |        |      |      |      |      |      |      |      |  |      |      |      |      |      |      |      |        |
+   * |        |      |      |      |      |      |      |      |  |      |      | Tab  |      |      |      |      |        |
    * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
    *                        |      |      |      |      |      |  |      |      |      |      |      |
    *                        |      |      |      |      |      |  |      |      |      |      |      |
@@ -276,13 +313,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
    */
   [NAVIGATION_MOD] = LAYOUT(
       KC_TRNS, KC_PAUS, KC_PSCR, KC_SLCK, KC_NLCK, KC_CAPS,
-      KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+      KC_ESC, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
 
       KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-      KC_HOME, KC_PGDN, KC_PGUP, KC_END, KC_TRNS, KC_TRNS,
+      KC_HOME, KC_PGDN, KC_PGUP, KC_END, KC_TRNS, KC_BSPC,
 
       KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-      KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+      KC_TRNS, KC_TRNS, KC_TAB, M_TOGGLE_MOUSE1, M_TOGGLE_MOUSE2, M_TOGGLE_MOUSE3, KC_TRNS, KC_TRNS,
 
       KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
       KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
@@ -293,11 +330,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
    * Numbers
    *
    * ,-------------------------------------------.                              ,-------------------------------------------.
-   * |        |      |      |      |      |      |                              |   )  | 7 &  | 8 *  | 9 (  |      | - _    |
+   * |        |      |      |      |      |      |                              | Esc  | 7 &  | 8 *  | 9 (  |      | - _    |
    * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
-   * |        | WIN  | Alt  | Ctrl |Shift |      |                              |  (   | 4 $  | 5 %  | 6 ^  | < ,  | '  "   |
+   * |        | WIN  | Alt  | Ctrl |Shift |      |                              |  0   | 4 $  | 5 %  | 6 ^  | < ,  |Backspce|
    * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
-   * |        |      |      |      |      |      |      |      |  |      |      | 0 )  | 1 !  | 2 @  | 3 #  | > .  |  = +   |
+   * |        |      |      |      |      |      |      |      |  |      |      | Tab  | 1 !  | 2 @  | 3 #  | > .  |  = +   |
    * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
    *                        |      |      |      |      |      |  |      |      |      |      |      |
    *                        |      |      |      |      |      |  |      |      |      |      |      |
@@ -305,13 +342,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
    */
   [NUMBERS] = LAYOUT(
       KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-      KC_RPRN, KC_7, KC_8, KC_9, KC_TRNS, KC_MINS,
+      KC_ESC, KC_7, KC_8, KC_9, KC_TRNS, KC_MINS,
 
       KC_TRNS, KC_TRNS, KC_TRNS, LT(NUMBERS_MOD, KC_TAB), KC_TRNS, KC_TRNS,
-      KC_LPRN, KC_4, KC_5, KC_6, KC_COMM, KC_QUOT,
+      KC_0, RSFT_T(KC_4), LT(QWERTY_MOD_L, KC_5), KC_6, KC_COMM, KC_BSPC,
 
       KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-      KC_TRNS, KC_TRNS, KC_0, KC_1, KC_2, KC_3, KC_DOT, KC_EQL,
+      KC_TRNS, KC_TRNS, KC_TAB, KC_1, KC_2, KC_3, KC_DOT, KC_EQL,
 
       KC_TRNS, MO(NUMBERS_MOD), KC_TRNS, KC_TRNS, KC_TRNS,
       KC_TRNS, KC_TRNS, KC_TRNS, MO(NUMBERS_MOD), KC_TRNS
@@ -322,11 +359,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
    * Functional layer
    *
    * ,-------------------------------------------.                              ,-------------------------------------------.
-   * |   Mac  | RGB  | SAT+ | HUE+ |Brght+| MOD+ |                              |      | F7   | F8   | F9   | F10  |        |
+   * |   Mac  | RGB  | SAT+ | HUE+ |Brght+| MOD+ |                              | Esc  | F7   | F8   | F9   | F10  |        |
    * |--------+------+------+------+------+------|                              |------+------+------+------+------+--------|
-   * | Linux  |      |      |      |      |      |                              |      | F4   | F5   | F6   | F11  |        |
+   * | Linux  |      |      |      |      |      |                              |      | F4   | F5   | F6   | F11  |Backspce|
    * |--------+------+------+------+------+------+-------------.  ,-------------+------+------+------+------+------+--------|
-   * |Windows |      | SAT- | HUE- |Brght+| MOD- |      |      |  |      |      |      | F1   | F2   | F3   | F12  |        |
+   * |Windows |      | SAT- | HUE- |Brght+| MOD- |      |      |  |      |      | Tab  | F1   | F2   | F3   | F12  |        |
    * `----------------------+------+------+------+------+------|  |------+------+------+------+------+----------------------'
    *                        |      |      |      |      |      |  |      |      |      |      |      |
    *                        |      |      |      |      |      |  |      |      |      |      |      |
@@ -335,13 +372,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [NUMBERS_MOD] = LAYOUT(
       M_OS_MAC, RGB_TOG, RGB_SAI, RGB_HUI, RGB_VAI, RGB_MOD,
-      KC_TRNS, KC_F7, KC_F8, KC_F9, KC_F10, KC_TRNS,
+      KC_ESC, KC_F7, KC_F8, KC_F9, KC_TRNS, KC_TRNS,
 
       M_OS_LINUX, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-      KC_TRNS, KC_F4, KC_F5, KC_F6, KC_F11, KC_TRNS,
+      KC_F10, KC_F4, KC_F5, KC_F6, KC_F11, KC_BSPC,
 
       M_OS_WINDOWS, KC_TRNS, RGB_SAD, RGB_HUD, RGB_VAD, RGB_RMOD, KC_TRNS, KC_TRNS,
-      KC_TRNS, KC_TRNS, KC_TRNS, KC_F1, KC_F2, KC_F3, KC_F12, KC_TRNS,
+      KC_TRNS, KC_TRNS, KC_TAB, KC_F1, KC_F2, KC_F3, KC_F12, KC_TRNS,
 
       KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
       KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
@@ -398,10 +435,11 @@ static void set_os(enum os new_os) {
 
 
 static void set_directive(enum directive new_directive) {
+  directive_timer = timer_read();
   active_directive = new_directive;
 }
 
-static void pointer(int x, int y, int v, int h) {
+static void pointer(int x, int y, int h, int v) {
   report_mouse_t currentReport = pointing_device_get_report();
   currentReport.x = x;
   currentReport.y = y;
@@ -411,19 +449,44 @@ static void pointer(int x, int y, int v, int h) {
   pointing_device_send();
 }
 
+static void mouse_down(uint8_t button) {
+  directive_timer = timer_read();
+  report_mouse_t currentReport = pointing_device_get_report();
+  currentReport.buttons |= button;
+  pointing_device_set_report(currentReport);
+  pointing_device_send();
+}
+
+static void mouse_up(uint8_t button) {
+  directive_timer = timer_read();
+  report_mouse_t currentReport = pointing_device_get_report();
+  currentReport.buttons &= ~button;
+  pointing_device_set_report(currentReport);
+  pointing_device_send();
+}
+
+static void mouse_toggle(uint8_t button) {
+  directive_timer = timer_read();
+  report_mouse_t currentReport = pointing_device_get_report();
+  currentReport.buttons ^= button;
+  pointing_device_set_report(currentReport);
+  pointing_device_send();
+}
+
 static void move(enum DIRECTION dir) {
-  int mult = 5;
+  directive_timer = timer_read();
+  int mult = 1;
   int x = 0;
   int y = 0;
   switch (active_directive) {
     case MOUSE:
-
+      mult=25;
       if(accelrated_4)
         mult = 1;
       else if (accelrated_3 || accelrated_2) 
         mult = 125;
       else if (accelrated_1)
-        mult = 25;  
+        mult = 5;  
 
       switch (dir) {
         case UP:
@@ -446,24 +509,25 @@ static void move(enum DIRECTION dir) {
         pointer(x, y, 0, 0);
         pointer(x, y, 0, 0);
         pointer(x, y, 0, 0);
+        pointer(1, 1, 0, 0);
       }
       break;
 
     case SCROLL:
-
+      mult=3;
       if(accelrated_4)
         mult = 1;
       else if (accelrated_3 || accelrated_2) 
-        mult = 125;
+        mult = 27;
       else if (accelrated_1)
-        mult = 25;  
+        mult = 9;  
 
       switch (dir) {
         case UP:
-          y = 0-mult;
+          y = mult;
           break;
         case DOWN:
-          y =  mult;
+          y = 0-mult;
           break;
         case LEFT:
           x = 0-mult;
@@ -472,8 +536,12 @@ static void move(enum DIRECTION dir) {
           x = mult;
           break;
       }
+      if (active_os==MAC)
+        y = 0-y;
 
       pointer(0, 0, x, y);
+      if (active_os==MAC)
+        pointer(0, 0, x, y);
       if(accelrated_3) {
         pointer(0, 0, x, y);
         pointer(0, 0, x, y);
@@ -526,13 +594,25 @@ static void release_move(enum DIRECTION dir) {
   }
 }
 
+void shifted_tap(uint16_t key, uint16_t key_on_shift) {
+    if(get_mods() & MOD_BIT(KC_LSHIFT))
+      tap_code16(key_on_shift);
+    else
+      tap_code16(key);
+}
+
 
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+  bool lshift =  get_mods() & MOD_BIT(KC_LSHIFT);
+  bool rshift =  get_mods() & MOD_BIT(KC_RSHIFT);
+  bool shifted = lshift || rshift;
   if (record->event.pressed) {
     switch (keycode) {
       case M_AE:
-        SEND_STRING(SS_LALT("'"));
+        if(active_os==MAC) SEND_STRING(SS_LALT("'"));
+        if(active_os==WINDOWS) SEND_STRING(SS_LALT("'"));
+        if(active_os==LINUX) SEND_STRING(SS_LCTL(SS_LSFT("u")) "00f8" SS_TAP(X_ENT));
         break;
       case M_OE:
         SEND_STRING(SS_LALT("o"));
@@ -551,22 +631,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         break;
       case   M_ACCL_4:
         accelrated_4 = true; 
-        break;
-
-      case M_CUT:
-        SEND_STRING(SS_LGUI("x"));
-        break;
-      case M_COPY:
-        SEND_STRING(SS_LGUI("c"));
-        break;
-      case M_PASTE:
-        SEND_STRING(SS_LGUI("v"));
-        break;
-      case M_UNDO:
-        SEND_STRING(SS_LGUI("z"));
-        break;
-      case M_REDO:
-        SEND_STRING(SS_LGUI(SS_LALT(SS_LSFT("z"))));
         break;
       case M_FIND:
         SEND_STRING(SS_LGUI("f"));
@@ -612,6 +676,45 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       case   M_RIGHT:
         move(RIGHT);
         break;
+
+      case M_MOUSE1:
+        mouse_down(MOUSE_BTN1);
+        break;
+      case M_TOGGLE_MOUSE1:
+        mouse_toggle(MOUSE_BTN1);
+        break;
+
+      case M_MOUSE2:
+        mouse_down(MOUSE_BTN2);
+        break;
+      case M_TOGGLE_MOUSE2:
+        mouse_toggle(MOUSE_BTN2);
+        break;
+
+      case M_MOUSE3:
+        mouse_down(MOUSE_BTN3);
+        break;
+      case M_TOGGLE_MOUSE3:
+        mouse_toggle(MOUSE_BTN3);
+        break;
+
+      case   M_PARENTHESIS:
+        if(!shifted) tap_code16(S(KC_LEFT_PAREN));
+        else tap_code16(KC_RIGHT_PAREN);
+        break;
+      case   M_CURLIES:
+        if(!shifted) tap_code16(S(KC_LEFT_CURLY_BRACE));
+        else tap_code16(KC_RIGHT_CURLY_BRACE);
+        break;
+      case M_BRACKETS:
+        if(!shifted) tap_code16(KC_LBRACKET);
+        else {
+          if(lshift) unregister_code(KC_LSHIFT);
+          if(rshift) unregister_code(KC_RSHIFT);
+          tap_code(KC_RBRACKET);
+          if(lshift) register_code(KC_LSHIFT);
+          if(rshift) register_code(KC_RSHIFT);
+        }
     }
   } else {
     switch (keycode) {
@@ -639,6 +742,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       case   M_RIGHT:
         release_move(RIGHT);
         break;
+      case M_MOUSE1:
+        mouse_up(MOUSE_BTN1);
+        break;
+      case M_MOUSE2:
+        mouse_up(MOUSE_BTN2);
+        break;
+      case M_MOUSE3:
+        mouse_up(MOUSE_BTN3);
+        break;
     }
   }
   return true;
@@ -653,18 +765,25 @@ static void render_qmk_logo(void) {
   oled_write_P(qmk_logo, false);
 }
 
+
 static void render_status(void) {
   // QMK Logo and version information
   render_qmk_logo();
   oled_write_P(PSTR("       Kyria rev1.0\n\n"), false);
 
+  if(active_directive != TEXTMOTION && timer_elapsed(directive_timer) > 15000) {
+    active_directive = TEXTMOTION;
+  }
   // Host Keyboard Layer Status
   oled_write_P(PSTR("Layer: "), false);
   switch (get_highest_layer(layer_state)) {
-    case QWERTY: case QWERTY_MAC:
+    case QWERTY:
       oled_write_P(PSTR("Qwerty\n"), false);
       break;
-    case QWERTY_MOD:
+    case QWERTY_MAC:
+      oled_write_P(PSTR("Qwerty (M)\n"), false);
+      break;
+    case QWERTY_MOD_L: case QWERTY_MOD_R:
       oled_write_P(PSTR("Mod(Qerty)\n"), false);
       break;
     case NAVIGATION:
@@ -697,7 +816,10 @@ static void render_status(void) {
       oled_write_P(PSTR("Undefined     "), false);
   }
   
-  directive === TEXTMOTION ? oled_write_P(PSTR("ARROWS") false):;
+  (active_directive) == TEXTMOTION ? oled_write_P(PSTR("ARROWS "), false)
+  : (active_directive) == MOUSE ? oled_write_P(PSTR("MOUSE  "), false)
+  :(active_directive) == SCROLL ? oled_write_P(PSTR("SCROLL "), false)
+    :oled_write_P(PSTR("UNKNOWN"), false);
 
 
   // Host Keyboard LED Status
@@ -708,18 +830,13 @@ static void render_status(void) {
 }
 
 layer_state_t layer_state_set_user(layer_state_t state) {
-  if(get_highest_layer(state) < QWERTY_MOD && IS_LAYER_ON_STATE(state, CMD)) {
-    layer_state_t s = state | (1 << CMD);
-    if(active_os == MAC)
-      return s  | (1 << CMD_MAC);
-    else
-      return s  & ~(1 << CMD_MAC); 
-  }
-  else if(!IS_LAYER_ON_STATE(state, CMD)) {
+  //if(get_highest_layer(state) < QWERTY_MOD_L && IS_LAYER_ON_STATE(state, CMD)) {
+  if(get_highest_layer(state) < QWERTY_MOD_L) 
     return state & (~((1 << CMD) | (1 << CMD_MAC)));
-  }
-
-  return state;
+  
+  if(active_os == MAC)
+    return state  | (1 << CMD_MAC) | (1 << CMD);
+  return state  | (1 << CMD);
 }
 
 void suspend_power_down_user(void) {
@@ -741,17 +858,25 @@ void encoder_update_user(uint8_t index, bool antiClockwise) {
   if (index == 0) {
     for(int i = 0; i < (accelrated_1 ? 10 : 1); i++) {
       if (antiClockwise) {
-        tap_code(KC_UP);
+        //tap_code(KC_UP);
+        move(UP);
+        release_move(UP);
       } else {
-        tap_code(KC_DOWN);
+        //tap_code(KC_DOWN);
+        move(DOWN);
+        release_move(DOWN);
       }
     }
   } else if (index == 1) {
     for(int i = 0; i < (accelrated_1 ? 5 : 1); i++) {
       if (antiClockwise) {
-        tap_code(KC_LEFT);
+        //tap_code(KC_LEFT);
+        move(LEFT);
+        release_move(LEFT);
       } else {
-        tap_code(KC_RIGHT);
+        //tap_code(KC_RIGHT);
+        move(RIGHT);
+        release_move(RIGHT);
       }
     }
   }
