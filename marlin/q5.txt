@@ -1,0 +1,13 @@
+Max flow rate: 377
+Flow-rate: 76.92
+Retraction distance: 4
+Retraction speed 50
+Probe offset: 19.7
+Accelration: 2000
+Jerk: 12
+Printspeed: 120
+
+k-factor 0.4 (?)
+
+layer-height 0.162
+

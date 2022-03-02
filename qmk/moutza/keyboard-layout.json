@@ -1,0 +1,99 @@
+[
+  [
+    {
+      "t": "#9b00b8\n#ff003d\n\n#1f9c61",
+      "fa": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        6
+      ]
+    },
+    "RESET\n\n\n\n\n\n\n\n\nQ",
+    "\nÆ\n\n\n\n\n\n\n\nB",
+    "[\nØ\n\n\n\n\n\n\n\nV",
+    "]\nÅ\n\n\n\n\n\n\n\nG",
+    {
+      "x": 3
+    },
+    "Esc\n\n\nF10\n\n\n\n\n\nW",
+    "\\\n\n\nF11\n\n\n\n\n\nK",
+    "|\n\n\nF12\n\n\n\n\n\nZ",
+    "\ndel\n\ndel\n\n\n\n\n\"\n'"
+  ],
+  [
+    {
+      "x": 1
+    },
+    "+\n\n\n\n\n\n\n\n\nC",
+    "{\n\n\n\n\n\n\n\n\nH",
+    "}\n\n\n\n\n\n\n\n\nP",
+    {
+      "x": 3
+    },
+    "&\n7\n\nF7\n\n\n\n\n\nY",
+    "*\n8\n\nF8\n\n\n\n\n\nO",
+    "_\n9\n\nF9\n\n\n\n\n\nJ"
+  ],
+  [
+    ":\n←\n\n⇤\n\n\n\n\n\nR",
+    "=\n→\n\n⇥\n\n\n\n\n\nS",
+    "M2\n↑\n\n⇑\n\n\n\n\n\nN",
+    "M1\n↓\n\n⇓\n\n\n\n\n\nT",
+    {
+      "x": 3
+    },
+    "$\n4\n\nF4\n\n\n\n\n\nU",
+    "%\n5\n\nF5\n\n\n\n\n\nE",
+    "^\n6\n\nF6\n\n\n\n\n\nI",
+    "`\n0\n\n\n\n\n\n\n\nA"
+  ],
+  [
+    "~\n\n\n\n\n\n\n\n\nX",
+    {
+      "a": 0
+    },
+    "-\n\n\n\nWin/⌃\n\n\n\n\nM",
+    "(\n\n\n\nAlt/⌥\n\n\n\n\nL",
+    ")\n\n\n\nCtrl/⌘\n\n\n\n\nD",
+    {
+      "x": 3
+    },
+    "!\n1\n\nF1\nCtrl/⌘\n\n\n\n\nF",
+    "@\n2\n\nF2\nAlt/⌥\n\n\n\n<\n,",
+    "#\n3\n\nF3\nWin/⌃\n\n\n\n>\n.",
+    {
+      "a": 4
+    },
+    "\n↹\n\n↹\n\n\n\n\n?\n/"
+  ],
+  [
+    {
+      "x": 3,
+      "f": 3
+    },
+    "sym\n\n\n\n\n\n\n\n\nBKSPC",
+    {
+      "t": "#000000\n#ff003d\n\n#1f9c61",
+      "f": 3
+    },
+    "SHIFT\n\n\n\n\n\n\n\n\nLEAD",
+    {
+      "x": 1,
+      "t": "#00b860\n#ff003d\n\n#1f9c61",
+      "f": 3
+    },
+    "fn\n\n\n\n\n\n\n\n\nENTER",
+    {
+      "t": "#ff0000\n#ff003d\n\n#1f9c61",
+      "f": 3
+    },
+    "num\n\n\n\n\n\n\n\n\nSPACE"
+  ]
+]

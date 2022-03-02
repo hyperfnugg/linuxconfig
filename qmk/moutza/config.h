@@ -25,8 +25,8 @@
 #define PRODUCT         moutza
 
 /* key matrix size */
-#define MATRIX_ROWS 8 // Rows are doubled-up
-#define MATRIX_COLS 6
+#define MATRIX_ROWS 10 // Rows are doubled-up
+#define MATRIX_COLS 4
 
 /*
  * Keyboard Matrix Assignments
@@ -38,10 +38,10 @@
  *                  ROW2COL = ROW = Anode (+), COL = Cathode (-, marked on diode)
  *
  */
-#define MATRIX_COL_PINS { B15, B10, B0, A5, A4, A3 }
-#define MATRIX_ROW_PINS { A10, A15, B3, B4 }
-#define MATRIX_COL_PINS_RIGHT { B10, B15, A10, A15, B3, B4 }
-#define MATRIX_ROW_PINS_RIGHT { B0, A5, A4, A3 }
+#define MATRIX_COL_PINS { B12, B13, B14, B15 }
+#define MATRIX_ROW_PINS { A2, A3, A4, A5, A6 }
+#define MATRIX_COL_PINS_RIGHT { B12, B13, B14, B15 }
+#define MATRIX_ROW_PINS_RIGHT { A2, A3, A4, A5, A6 }
 
 /* COL2ROW, ROW2COL*/
 #define DIODE_DIRECTION COL2ROW
@@ -51,25 +51,26 @@
 /*
  * Split Keyboard specific options, make sure you have 'SPLIT_KEYBOARD = yes' in your rules.mk, and define SOFT_SERIAL_PIN.
  */
-#define SPLIT_HAND_PIN B9
+#define SPLIT_USB_DETECT
+#define SPLIT_HAND_PIN B7
 #define SOFT_SERIAL_PIN B6
 //#define SELECT_SOFT_SERIAL_SPEED 0
 #define SERIAL_USART_SPEED 921600
 
-#define ENCODERS_PAD_A { B5 }
-#define ENCODERS_PAD_B { A2 }
+#define ENCODERS_PAD_A { B2 }
+#define ENCODERS_PAD_B { B10 }
 
-#define RGB_DI_PIN B1
-#define RGBLED_NUM 48
-#define RGBLED_SPLIT {24, 24}
-#define RGBLIGHT_LIMIT_VAL 120
-#define RGBLIGHT_ANIMATIONS
+//#define RGB_DI_PIN B1
+//#define RGBLED_NUM 48
+//#define RGBLED_SPLIT {24, 24}
+//#define RGBLIGHT_LIMIT_VAL 120
+//#define RGBLIGHT_ANIMATIONS
 
-#define WS2812_PWM_DRIVER PWMD3
-#define WS2812_PWM_CHANNEL 4
-#define WS2812_PWM_PAL_MODE 2
-#define WS2812_DMA_STREAM STM32_DMA1_STREAM2
-#define WS2812_DMA_CHANNEL 5
+//#define WS2812_PWM_DRIVER PWMD3
+//#define WS2812_PWM_CHANNEL 4
+//#define WS2812_PWM_PAL_MODE 2
+//#define WS2812_DMA_STREAM STM32_DMA1_STREAM2
+//#define WS2812_DMA_CHANNEL 5
 
 /* Debounce reduces chatter (unintended double-presses) - set 0 if debouncing is not needed */
 #define DEBOUNCE 5
