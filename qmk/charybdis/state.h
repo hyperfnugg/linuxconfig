@@ -1,0 +1,71 @@
+enum layers {
+  QWERTY = 0,
+  QWERTY_MAC,
+  NUM,
+  NAV,
+  SYM,
+  NAV_MAC,
+  EXTRA,
+};
+
+
+enum custom_keycodes {
+  M_AE = SAFE_RANGE,
+  M_OE,
+  M_AA,
+  M_FIND,
+  M_FIND_CURSOR,
+  M_FIND_NEXT,
+  M_FIND_PREVIOUS,
+  M_NTAB,
+  M_NWIN,
+  M_PROGRAM_WINDOW,
+  M_OS_WINDOWS,
+  M_OS_LINUX,
+  M_OS_MAC,
+  M_ACCL_1,
+  M_ACCL_2,
+  M_ACCL_3,
+  M_ACCL_4,
+  M_DIRECTIVE_TEXTMOTION,
+  M_DIRECTIVE_MOUSE,
+  M_DIRECTIVE_SCROLL,
+  M_UP,
+  M_DOWN,
+  M_LEFT,
+  M_RIGHT,
+  M_MOUSE1,
+  M_TOGGLE_MOUSE1,
+  M_MOUSE2,
+  M_TOGGLE_MOUSE2,
+  M_MOUSE3,
+  M_TOGGLE_MOUSE3,
+  M_LPARENTHESIS,
+  M_RPARENTHESIS,
+  M_CURLIES,
+  M_BRACKETS
+};
+
+enum tap_dances {
+  TD_QUOT_SNIPE
+};
+
+
+enum directive {
+  TEXTMOTION,
+  MOUSE,
+  SCROLL
+};
+
+enum DIRECTION{
+  UP,
+  DOWN,
+  LEFT,
+  RIGHT
+};
+
+enum os {
+  WINDOWS = 0,
+  MAC,
+  LINUX
+};
