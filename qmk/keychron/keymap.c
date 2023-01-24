@@ -52,7 +52,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [EXTRAS] = LAYOUT_ansi_82(
         KC_CAPS, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_PSCR, _______,          _______,
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          KC_INS ,
-        _______, _______, _______, _______, _______, _______, _______, KC_PGDN, KC_PGUP, _______, _______, M_AA   , _______, RESET,            _______,
+        _______, _______, _______, _______, _______, _______, _______, KC_PGDN, KC_PGUP, _______, _______, M_AA   , _______, _______,            _______,
         _______, _______, _______, _______, _______, _______, KC_LEFT, KC_DOWN, KC_UP,   KC_RIGHT,M_OE   , M_AE   ,          _______,          M_HOME,
         _______,          _______, _______, _______, _______, _______, M_HOME , M_END  , _______, _______, _______,          _______, _______,  
         _______, _______, _______,                            _______,                            _______, KC_MENU, _______, _______, _______, _______
@@ -61,9 +61,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [CONFIG] = LAYOUT_ansi_82(
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______,
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, RGB_VAD, RGB_VAI, _______,          RGB_MOD,
-        _______, _______, M_OS_WINDOWS,_______,RESET,_______, _______, _______, _______, _______, _______, RGB_SPD, RGB_SPI, _______,          RGB_RMOD,
+        _______, _______, M_OS_WINDOWS,_______,QK_BOOT,_______, _______, _______, _______, _______, _______, RGB_SPD, RGB_SPI, _______,          RGB_RMOD,
         _______, _______, _______, _______, _______, _______, _______, _______, _______, M_OS_LINUX,_______,_______,         _______,          RGB_TOG,
-        _______,          _______, _______, _______, _______, _______, KC_NLCK, M_OS_MAC,_______, _______, _______,          _______, RGB_SAI,
+        _______,          _______, _______, _______, _______, _______, KC_NUM, M_OS_MAC,_______, _______, _______,          _______, RGB_SAI,
         _______, _______, _______,                            _______,                            _______, _______, _______, RGB_HUD, RGB_SAD, RGB_HUI
     )
 
@@ -89,7 +89,7 @@ static void set_os(enum os new_os) {
 
 
 void shifted_tap(uint16_t key, uint16_t key_on_shift) {
-    if(get_mods() & MOD_BIT(KC_LSHIFT))
+    if(get_mods() & MOD_BIT(KC_LSFT))
       tap_code16(key_on_shift);
     else
       tap_code16(key);
@@ -98,16 +98,16 @@ void shifted_tap(uint16_t key, uint16_t key_on_shift) {
 
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  bool lshift =  get_mods() & MOD_BIT(KC_LSHIFT);
-  bool rshift =  get_mods() & MOD_BIT(KC_RSHIFT);
+  bool lshift =  get_mods() & MOD_BIT(KC_LSFT);
+  bool rshift =  get_mods() & MOD_BIT(KC_RSFT);
   bool shifted = lshift || rshift;
   if (record->event.pressed) {
     switch (keycode) {
       case M_AE:
         if(active_os==MAC) SEND_STRING(SS_LALT("'"));
         else if(active_os==WINDOWS && shifted) {
-          if(lshift) unregister_code(KC_LSHIFT);
-          if(rshift) unregister_code(KC_RSHIFT);
+          if(lshift) unregister_code(KC_LSFT);
+          if(rshift) unregister_code(KC_RSFT);
           SEND_STRING(SS_LALT(SS_TAP(X_KP_0) SS_TAP(X_KP_1) SS_TAP(X_KP_9) SS_TAP(X_KP_8)));
         }
         else if(active_os==WINDOWS)
@@ -118,8 +118,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       case M_OE:
         if(active_os==MAC) SEND_STRING(SS_LALT("o"));
         else if(active_os==WINDOWS && shifted) {
-          if(lshift) unregister_code(KC_LSHIFT);
-          if(rshift) unregister_code(KC_RSHIFT);
+          if(lshift) unregister_code(KC_LSFT);
+          if(rshift) unregister_code(KC_RSFT);
           SEND_STRING(SS_LALT(SS_TAP(X_KP_0) SS_TAP(X_KP_2) SS_TAP(X_KP_1) SS_TAP(X_KP_6)));
         }
         else if(active_os==WINDOWS)
@@ -130,8 +130,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       case M_AA:
         if(active_os==MAC) SEND_STRING(SS_LALT("a"));
         else if(active_os==WINDOWS && shifted) {
-          if(lshift) unregister_code(KC_LSHIFT);
-          if(rshift) unregister_code(KC_RSHIFT);
+          if(lshift) unregister_code(KC_LSFT);
+          if(rshift) unregister_code(KC_RSFT);
           SEND_STRING(SS_LALT(SS_TAP(X_KP_0) SS_TAP(X_KP_1) SS_TAP(X_KP_9) SS_TAP(X_KP_7)));
         }
         else if(active_os==WINDOWS)
@@ -163,8 +163,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         else  SEND_STRING(SS_TAP(X_END));
         break;
     }
-    if(lshift) register_code(KC_LSHIFT);
-    if(rshift) register_code(KC_RSHIFT);
+    if(lshift) register_code(KC_LSFT);
+    if(rshift) register_code(KC_RSFT);
   } else {
     switch (keycode) {
     }

@@ -1,12 +1,43 @@
 {
     "keyboard_name": "moutza",
     "url": "",
+    "manufacturer":  "Handwired",
     "maintainer": "hyperfnugg",
+    "development_board": "blackpill_f411",
+    "usb": {
+        "vid": "0xFEED",
+        "pid": "0x8465",
+        "device_version": "0.0.1"
+    },
+    "matrix_pins": {
+        "cols": ["B0"],
+        "rows": ["A7"]
+    },
+    "backlight": {
+        "pin": "A0"
+    },
+    "rgblight": {
+        "pin": "A1"
+    },
+    "diode_direction": "COL2ROW",
+    "features": {
+        "bootmagic": false,
+        "mousekey": false,
+        "extrakey": true,
+        "console": false,
+        "command": false,
+        "nkro": false,
+        "backlight": false,
+        "rgblight": false,
+        "audio": false
+    },
     "layouts": {
         "LAYOUT_ortho_1x1": {
             "layout": [
-                {"x": 0, "y": 0}
+                {"x": 0, "y": 0, "matrix": [0,0]}
             ]
         }
     }
 }
+
+

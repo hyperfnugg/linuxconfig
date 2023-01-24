@@ -19,3 +19,9 @@
 
 // Allows media codes to properly register in macros and rotary encoder code
 #define TAP_CODE_DELAY 10
+
+// #define NO_CHARYBDIS_KEYCODES
+
+#define CHARYBDIS_DRAGSCROLL_REVERSE_Y
+
+#define ROTATIONAL_TRANSFORM_ANGLE -60
